@@ -1,10 +1,13 @@
 fileFormatVersion: 2
 guid: d92bc9f7e5b6435468403b61586b4050
-timeCreated: 1456612280
-licenseType: Free
 MonoImporter:
+  externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - healthBar: {fileID: 438462457756469734, guid: 7093dd6bc15f2b247950a129e5f18e37,
+      type: 3}
+  - cam: {instanceID: 0}
+  - Body: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

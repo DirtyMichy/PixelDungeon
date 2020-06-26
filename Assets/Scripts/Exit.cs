@@ -14,23 +14,6 @@ public class Exit : MonoBehaviour
         {
             exited = true;
 
-            if(PlayerPrefsX.GetIntArray("collectedMuffins").Length > 0)
-                campaignCollectedMuffins = PlayerPrefsX.GetIntArray("collectedMuffins");
-            else
-            {
-                campaignCollectedMuffins = new int[SceneManager.sceneCountInBuildSettings];
-            }
-
-            int sceneNameAsInt = int.Parse(SceneManager.GetActiveScene().name);
-
-            campaignCollectedMuffins[sceneNameAsInt]=Camera.main.GetComponent<Manager>().collectedMuffins;
-            PlayerPrefsX.SetIntArray("collectedMuffins", campaignCollectedMuffins);
-
-            PlayerPrefs.Save();
-            if((sceneNameAsInt+1) < ((SceneManager.sceneCountInBuildSettings)-1))
-                SceneManager.LoadScene((sceneNameAsInt+1).ToString());
-            else                
-                SceneManager.LoadScene("Menu");
         }
     }
 
@@ -38,21 +21,8 @@ public class Exit : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.O) && !exited)
         {
-            exited = true;
-            
-            if(PlayerPrefsX.GetIntArray("collectedMuffins").Length > 0)
-                campaignCollectedMuffins = PlayerPrefsX.GetIntArray("collectedMuffins");
-            else
-            {
-                campaignCollectedMuffins = new int[SceneManager.sceneCountInBuildSettings];
-            }
-            
-            int sceneNameAsInt = int.Parse(SceneManager.GetActiveScene().name);
-            
-            campaignCollectedMuffins[sceneNameAsInt]=Camera.main.GetComponent<Manager>().collectedMuffins;
-            PlayerPrefsX.SetIntArray("collectedMuffins", campaignCollectedMuffins);
-            
-            PlayerPrefs.Save();
+            exited = true;            
+
             SceneManager.LoadScene("Menu");
         }  
     }

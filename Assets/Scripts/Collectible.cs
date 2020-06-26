@@ -2,30 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Collectible : MonoBehaviour {
+public class Collectible : MonoBehaviour
+{
+    public int healValue = 1;
+    public bool collected = false;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-
-    private bool collected = false;
-
-	// Update is called once per frame
-	void Update ()
+    void Update()
     {
         iTween.PunchPosition(gameObject, iTween.Hash("y", 2f));
-	}
+    }
 
     void OnTriggerEnter2D(Collider2D c)
     {
-        if(!collected && c.tag == "Player")
+        if (!collected && (c.tag == "Player" || c.tag == "Enemy"))
         {
             collected = true;
-            Camera.main.GetComponent<Manager>().collectedMuffins++;
-            c.GetComponent<PlayerController>().powerUpCount++;
-            if(c.GetComponent<PlayerController>().powerUpCount<10)
-                c.GetComponent<PlayerController>().Body.transform.localScale+=new Vector3(0.05f,0.15f,0f);
+
+            c.GetComponent<UnitObject>().Heal(healValue);
+
             GetComponent<AudioSource>().Play();
             StartCoroutine(Despawn());
         }
@@ -33,7 +27,7 @@ public class Collectible : MonoBehaviour {
 
     IEnumerator Despawn()
     {
-        iTween.ScaleTo(gameObject, new Vector3(0f,0f,0f), 1f);
+        iTween.ScaleTo(gameObject, new Vector3(0f, 0f, 0f), 1f);
         yield return new WaitForSeconds(1f);
         Destroy(gameObject);
     }

@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using GamepadInput;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : UnitObject
 {
     public bool facingRight = true;
-    public bool jump = true;
-    private bool alive = true;
+    public bool isJumping = true;
 
     public float moveForce = 365f;
     public float maxSpeed = 5f;
@@ -15,10 +14,7 @@ public class PlayerController : MonoBehaviour
     public Transform[] groundCheck;
 
     public Camera cam;
-    public int powerUpCount = 0;
     public int playerID = 0;
-    public bool powerUpActivated = false;
-    public bool damaging = false;
 
     public bool isLeader = false;
     public bool grounded = false;
@@ -27,10 +23,7 @@ public class PlayerController : MonoBehaviour
 
     GamepadInput.GamePad.Index[] gamePadIndex;
 
-    public GameObject Balloons;
-    public GameObject Body;
-
-    AudioSource[] sounds;
+    public GameObject weapon;
 
     public void SetPlayerID(int i)
     {
@@ -39,23 +32,19 @@ public class PlayerController : MonoBehaviour
             cam = Camera.main;
     }
 
-    // Use this for initialization
-    void Start()
+    void Awake()
     {
-        sounds = GetComponents<AudioSource>();
         cam = Camera.main;
-
         anim = GetComponent<Animator>();
         rb2d = GetComponent<Rigidbody2D>();
-        
+
         gamePadIndex = new GamepadInput.GamePad.Index[4];
         gamePadIndex[0] = GamePad.Index.One;
         gamePadIndex[1] = GamePad.Index.Two;
         gamePadIndex[2] = GamePad.Index.Three;
         gamePadIndex[3] = GamePad.Index.Four;
     }
-	
-    // Update is called once per frame
+
     void Update()
     {
         for (int i = 0; i < groundCheck.Length; i++)
@@ -64,63 +53,37 @@ public class PlayerController : MonoBehaviour
                 grounded = true;
         }
 
-        //Powerup
+        //Attack
         if ((Input.GetKeyDown(KeyCode.X) && playerID == 0) || GamePad.GetButton(GamePad.Button.X, gamePadIndex[playerID]))
         {
-            if (!damaging && alive)
+            if (alive)
             {
-                damaging = true;
-                sounds[1].Play();
-
                 anim.SetTrigger("isAttacking");
-                StartCoroutine(Attack());
+                weapon.GetComponent<Weapon>().Attack();
             }
         }
 
         if ((((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) && playerID == 0) || GamePad.GetButton(GamePad.Button.A, gamePadIndex[playerID])) && alive && grounded)
         {
             Debug.Log(rb2d.velocity.y);
-            jump = true;
+            isJumping = true;
+
+            GetComponent<AudioSource>().clip = jump;
             GetComponent<AudioSource>().Play();
         }
 
         grounded = false;
-
-        if (powerUpActivated)
-        {
-            GetComponent<Rigidbody2D>().angularVelocity = 640f * -transform.localScale.x;
-        }
     }
-
-    IEnumerator Attack()
-    {		    
-        yield return new WaitForSeconds(.2f);
-
-        damaging = false;
-    }
-
-    IEnumerator powerUp()
+    /*
+    void Attack()
     {
-        powerUpActivated = true;
-        GetComponent<Rigidbody2D>().freezeRotation = false;
-        GetComponent<Rigidbody2D>().mass = 100f;
-        while (powerUpCount > 0)
-        {        
-            yield return new WaitForSeconds(1f);
-            powerUpCount--;
-        }
-        powerUpActivated = false;
-        GetComponent<Rigidbody2D>().freezeRotation = true;
-        GetComponent<Rigidbody2D>().mass = 1f;
-        transform.rotation = new Quaternion(0f, 0f, 0f, 0f);
-        Body.transform.localScale = new Vector3(1f, 1f, 1f);
+         Instantiate(weapon, new Vector3(transform.position.x - 1f, transform.position.y + 2f, transform.position.z), transform.rotation);        
     }
-
+    */
     void FixedUpdate()
     {
         if (alive)
         {
-
             Vector2 directionCurrent = GamePad.GetAxis(GamePad.Axis.LeftStick, gamePadIndex[playerID]);
 
             if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && playerID == 0)
@@ -132,22 +95,21 @@ public class PlayerController : MonoBehaviour
             if (directionCurrent.x * rb2d.velocity.x < maxSpeed)
                 rb2d.AddForce(Vector2.right * directionCurrent.x * moveForce);
 
-		
             if (Mathf.Abs(rb2d.velocity.x) > maxSpeed)
                 rb2d.velocity = new Vector2(Mathf.Sign(rb2d.velocity.x) * maxSpeed, rb2d.velocity.y);
-		
+
             if (directionCurrent.x > 0 && !facingRight)
                 Flip();
             else if (directionCurrent.x < 0 && facingRight)
                 Flip();
-		
-            if (jump)
+
+            if (isJumping)
             {
-//			anim.SetTrigger("Jump");
+                //			anim.SetTrigger("Jump");
                 rb2d.AddForce(new Vector2(0f, jumpForce * GetComponent<Rigidbody2D>().mass));
                 rb2d.velocity = new Vector2(0f, 0f);
-                ;
-                jump = false;
+                
+                isJumping = false;
             }
 
             if (directionCurrent.x != 0)
@@ -158,7 +120,6 @@ public class PlayerController : MonoBehaviour
             {
                 anim.SetBool("isWalking", false);
             }
-
         }
     }
 
@@ -168,35 +129,5 @@ public class PlayerController : MonoBehaviour
         Vector3 theScale = transform.localScale;
         theScale.x *= -1;
         transform.localScale = theScale;
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.tag == "Player")
-        {
-            Physics2D.IgnoreCollision(GetComponent<Collider2D>(), collision.gameObject.GetComponent<Collider2D>());
-        }
-
-        if (alive && ((collision.gameObject.tag == "Enemy" && !powerUpActivated) || collision.gameObject.tag == "KillZone"))
-        {
-            alive = false;
-            StartCoroutine(Die());
-        } 
-    }
-
-    public IEnumerator Die()
-    {
-        sounds[2].Play();
-        SpriteRenderer[] childComps = GetComponentsInChildren<SpriteRenderer>();        
-        for (int i = 255; i > 0; i -= 4)
-        {
-            for (int j = 0; j < childComps.Length; j++)
-            {
-                childComps[j].GetComponent<SpriteRenderer>().color = new Color(1f, 0f, 0f, i / 255f); 
-            }
-            yield return new WaitForSeconds(.0001f);
-        }
-        yield return new WaitForSeconds(1.2f);
-        Destroy(gameObject);
     }
 }
