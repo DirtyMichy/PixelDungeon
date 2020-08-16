@@ -21,6 +21,8 @@ public class PlayerController : UnitObject
     private Animator anim;
     private Rigidbody2D rb2d;
 
+    //private GameObject healthDamageBar;
+
     GamepadInput.GamePad.Index[] gamePadIndex;
 
     public GameObject weapon;
@@ -37,6 +39,7 @@ public class PlayerController : UnitObject
         cam = Camera.main;
         anim = GetComponent<Animator>();
         rb2d = GetComponent<Rigidbody2D>();
+        //healthDamageBar = GameObject.Find("PlayerDamageHealthBar");
 
         gamePadIndex = new GamepadInput.GamePad.Index[4];
         gamePadIndex[0] = GamePad.Index.One;
@@ -45,7 +48,7 @@ public class PlayerController : UnitObject
         gamePadIndex[3] = GamePad.Index.Four;
     }
 
-    void Update()
+    void LateUpdate()
     {
         for (int i = 0; i < groundCheck.Length; i++)
         {
@@ -71,6 +74,8 @@ public class PlayerController : UnitObject
             GetComponent<AudioSource>().clip = jump;
             GetComponent<AudioSource>().Play();
         }
+
+        //healthDamageBar.transform.localScale = new Vector3(Mathf.Lerp(healthDamageBar.transform.localScale.x, 4f * currentHealth / maxHealth, Time.time*0.005f), healthDamageBar.transform.localScale.y, healthDamageBar.transform.localScale.z);
 
         grounded = false;
     }
@@ -108,7 +113,7 @@ public class PlayerController : UnitObject
                 //			anim.SetTrigger("Jump");
                 rb2d.AddForce(new Vector2(0f, jumpForce * GetComponent<Rigidbody2D>().mass));
                 rb2d.velocity = new Vector2(0f, 0f);
-                
+
                 isJumping = false;
             }
 

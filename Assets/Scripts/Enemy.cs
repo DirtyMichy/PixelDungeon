@@ -14,7 +14,7 @@ public class Enemy : UnitObject
         StartCoroutine(Jumper());
     }
 
-    void Update()
+    void LateUpdate()
     {
         player = GameObject.FindGameObjectWithTag("Player"); //ugly right now, player gets destroyed, Iĺl fix this in a later version
         if (player != null)
