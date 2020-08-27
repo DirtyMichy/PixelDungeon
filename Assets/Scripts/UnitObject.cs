@@ -17,13 +17,21 @@ public class UnitObject : MonoBehaviour
     [SerializeField]
     private bool hasCanvasHealthbar = false;
 
+    public bool grounded = false;
+
     public AudioClip jump, hurt, die;
 
     [SerializeField]
     private GameObject healthDamageBar;
 
+    public Transform[] groundCheck;
+
+    public Animator anim;
+
     private void Start()
     {
+        anim = GetComponent<Animator>();
+
         healthDamageBar = GameObject.Find("PlayerDamageHealthBar");
         if (showHealthbar)
         {
@@ -48,7 +56,7 @@ public class UnitObject : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (gameObject.tag == "Enemy" && collision.gameObject.GetComponent<UnitObject>() && alive)
+        if (gameObject.tag != collision.gameObject.tag && collision.gameObject.GetComponent<UnitObject>() && alive)
         {
             collision.gameObject.GetComponent<UnitObject>().ApplyDamage(damage);
         }
@@ -101,8 +109,15 @@ public class UnitObject : MonoBehaviour
 
     private void Update()
     {
-        if (showHealthbar)
+        for (int i = 0; i < groundCheck.Length; i++)
+        {
+            if (Physics2D.Linecast(transform.position, groundCheck[i].position, 1 << LayerMask.NameToLayer("Ground")))
+                grounded = true;
+        }
+
+        if (showHealthbar && healthDamageBar != null)
             healthDamageBar.transform.localScale = new Vector3(Mathf.Lerp(healthDamageBar.transform.localScale.x, healthBar.transform.localScale.x, Time.time * 0.01f), healthDamageBar.transform.localScale.y, healthDamageBar.transform.localScale.z);
+
     }
     public void ApplyDamage(int amount)
     {

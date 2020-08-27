@@ -11,14 +11,11 @@ public class PlayerController : UnitObject
     public float moveForce = 365f;
     public float maxSpeed = 5f;
     public float jumpForce = 1000f;
-    public Transform[] groundCheck;
 
     public Camera cam;
     public int playerID = 0;
 
     public bool isLeader = false;
-    public bool grounded = false;
-    private Animator anim;
     private Rigidbody2D rb2d;
 
     //private GameObject healthDamageBar;
@@ -37,7 +34,6 @@ public class PlayerController : UnitObject
     void Awake()
     {
         cam = Camera.main;
-        anim = GetComponent<Animator>();
         rb2d = GetComponent<Rigidbody2D>();
         //healthDamageBar = GameObject.Find("PlayerDamageHealthBar");
 
@@ -50,11 +46,7 @@ public class PlayerController : UnitObject
 
     void LateUpdate()
     {
-        for (int i = 0; i < groundCheck.Length; i++)
-        {
-            if (Physics2D.Linecast(transform.position, groundCheck[i].position, 1 << LayerMask.NameToLayer("Ground")))
-                grounded = true;
-        }
+
 
         //Attack
         if ((Input.GetKeyDown(KeyCode.X) && playerID == 0) || GamePad.GetButton(GamePad.Button.X, gamePadIndex[playerID]))
@@ -75,9 +67,9 @@ public class PlayerController : UnitObject
             GetComponent<AudioSource>().Play();
         }
 
+        grounded = false;
         //healthDamageBar.transform.localScale = new Vector3(Mathf.Lerp(healthDamageBar.transform.localScale.x, 4f * currentHealth / maxHealth, Time.time*0.005f), healthDamageBar.transform.localScale.y, healthDamageBar.transform.localScale.z);
 
-        grounded = false;
     }
     /*
     void Attack()

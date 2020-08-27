@@ -5,7 +5,7 @@ using UnityEngine;
 public class SpawnEnemies : MonoBehaviour 
 {
     [SerializeField]
-    private GameObject enemy = default;
+    private GameObject[] enemy = default;
 
     [SerializeField]
     private GameObject powerUp = default;
@@ -23,7 +23,7 @@ public class SpawnEnemies : MonoBehaviour
         {
             int rng = Random.Range(0, 2);
             if(rng == 0)
-                Instantiate(enemy, spawnPoints[i].position, spawnPoints[i].rotation);
+                Instantiate(enemy[Random.Range(0, enemy.Length)], spawnPoints[i].position, spawnPoints[i].rotation);
             if (rng == 1)
                 Instantiate(powerUp, spawnPoints[i].position, spawnPoints[i].rotation);
         }
