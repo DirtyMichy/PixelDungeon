@@ -19,6 +19,7 @@ public class UnitObject : MonoBehaviour
 
     public AudioClip jump, hurt, die;
 
+    [SerializeField]
     private GameObject healthDamageBar;
 
     private void Start()
@@ -26,7 +27,6 @@ public class UnitObject : MonoBehaviour
         healthDamageBar = GameObject.Find("PlayerDamageHealthBar");
         if (showHealthbar)
         {
-
             if (hasCanvasHealthbar)
             {
                 healthBar = healthBarPrefab;
@@ -101,8 +101,8 @@ public class UnitObject : MonoBehaviour
 
     private void Update()
     {
-        healthDamageBar.transform.localScale = new Vector3(Mathf.Lerp(healthDamageBar.transform.localScale.x, healthBar.transform.localScale.x, Time.time * 0.01f), healthDamageBar.transform.localScale.y, healthDamageBar.transform.localScale.z);
-
+        if (showHealthbar)
+            healthDamageBar.transform.localScale = new Vector3(Mathf.Lerp(healthDamageBar.transform.localScale.x, healthBar.transform.localScale.x, Time.time * 0.01f), healthDamageBar.transform.localScale.y, healthDamageBar.transform.localScale.z);
     }
     public void ApplyDamage(int amount)
     {
